@@ -53,7 +53,10 @@ lazy_static! {
 
         let code_selector = gdt.add_entry(Descriptor::kernel_code_segment());
         let tss_selector = gdt.add_entry(Descriptor::tss_segment(&TSS));
-        let selectors = Selectors { code_selector, tss_selector };
+        let selectors = Selectors {
+            code_selector,
+            tss_selector,
+        };
 
         GdtWrapper { gdt, selectors }
     };

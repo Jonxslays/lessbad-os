@@ -2,6 +2,7 @@ use core::fmt::Write;
 use lazy_static::lazy_static;
 use spin::Mutex;
 use volatile::Volatile;
+use x86_64::instructions::interrupts;
 
 const BUFFER_HEIGHT: usize = 25;
 const BUFFER_WIDTH: usize = 80;
@@ -19,7 +20,9 @@ lazy_static! {
 
 #[doc(hidden)]
 pub fn _print(args: core::fmt::Arguments) {
-    WRITER.lock().write_fmt(args).unwrap();
+    interrupts::without_interrupts(|| {
+        WRITER.lock().write_fmt(args).unwrap();
+    });
 }
 
 #[allow(dead_code)]
@@ -106,7 +109,7 @@ impl VGAWriter {
             b'\n' => self.write_new_line(),
             byte => {
                 if self.column_position >= BUFFER_WIDTH {
-                    // Drop to new line if were exceeding VGA buffer
+                    // Drop to new line if were exceeding VGA buffer width
                     self.write_new_line();
                 }
 
@@ -159,17 +162,20 @@ fn test_println_simple() {
 #[test_case]
 fn test_println_column_overflow() {
     for _ in 0..200 {
-        crate::println!("test_println_many output");
+        crate::println!("test_println_column_overflow output");
     }
 }
 
 #[test_case]
 fn test_println_output() {
-    let s = "Some test string that fits on a single line";
-    crate::println!("{}", s);
+    interrupts::without_interrupts(|| {
+        let s = "Some test string that fits on a single line";
+        let mut writer = WRITER.lock();
+        writeln!(writer, "\n{}", s).expect("writeln failed");
 
-    for (i, c) in s.chars().enumerate() {
-        let screen_char = WRITER.lock().buffer.chars[BUFFER_HEIGHT - 2][i].read();
-        assert_eq!(char::from(screen_char.ascii_character), c);
-    }
+        for (i, c) in s.chars().enumerate() {
+            let screen_char = writer.buffer.chars[BUFFER_HEIGHT - 2][i].read();
+            assert_eq!(char::from(screen_char.ascii_character), c);
+        }
+    });
 }

@@ -20,7 +20,7 @@ pub extern "C" fn _start() {
 
     println!("Initialized  successfully.");
     // TODO: Actually do OS stuff
-    loop {}
+    lessbad::hlt_loop();
 }
 
 #[cfg(not(test))]
@@ -28,7 +28,7 @@ pub extern "C" fn _start() {
 fn panic(info: &PanicInfo) -> ! {
     use lessbad::eprintln;
     eprintln!("Unrecoverable error\n-- {}", info);
-    loop {}
+    lessbad::hlt_loop();
 }
 
 #[cfg(test)]
