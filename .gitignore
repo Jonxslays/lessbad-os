@@ -1,0 +1,6 @@
+/target
+.env
+.dev
+.venv
+__pycache__
+*.whl
