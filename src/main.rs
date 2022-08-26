@@ -6,7 +6,6 @@
 
 use core::panic::PanicInfo;
 
-use lessbad::eprintln;
 use lessbad::println;
 
 #[no_mangle]
@@ -14,8 +13,6 @@ pub extern "C" fn _start() {
     println!("LessbadOS - Where the bad is less");
 
     lessbad::init();
-
-    x86_64::instructions::interrupts::int3();
 
     #[cfg(test)]
     test_main();
@@ -29,6 +26,7 @@ pub extern "C" fn _start() {
 #[cfg(not(test))]
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {
+    use lessbad::eprintln;
     eprintln!("Unrecoverable error\n-- {}", info);
     loop {}
 }

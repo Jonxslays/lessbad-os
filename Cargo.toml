@@ -33,3 +33,7 @@ test-args = [
 [[test]]
 name = "panic"
 harness = false
+
+[[test]]
+name = "stack"
+harness = false
