@@ -13,8 +13,14 @@ use lessbad::println;
 pub extern "C" fn _start() {
     println!("LessbadOS - Where the bad is less");
 
+    lessbad::init();
+
+    x86_64::instructions::interrupts::int3();
+
     #[cfg(test)]
     test_main();
+
+    println!("Finished successfully.");
 
     // TODO: Actually do OS stuff
     loop {}
