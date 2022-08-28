@@ -4,16 +4,28 @@
 #![test_runner(lessbad::test_runner)]
 #![reexport_test_harness_main = "test_main"]
 
-use core::panic::PanicInfo;
+extern crate alloc;
 
+use bootloader::entry_point;
+use bootloader::BootInfo;
+use core::panic::PanicInfo;
+use x86_64::VirtAddr;
+
+use lessbad::allocator;
 use lessbad::println;
 
-#[no_mangle]
-pub extern "C" fn _start() {
-    println!("LessbadOS - Where the bad is less");
+entry_point!(kernel_main);
 
+fn kernel_main(boot_info: &'static BootInfo) -> ! {
+    println!("LessbadOS - Where the bad is less");
     println!("Initializing...");
     lessbad::init();
+
+    // Initialize the heap
+    let phys_offset = VirtAddr::new(boot_info.physical_memory_offset);
+    let mut mapper = unsafe { allocator::init(phys_offset) };
+    let mut frame_allocator = unsafe { allocator::BootFrameAllocator::init(&boot_info.memory_map) };
+    allocator::init_heap(&mut mapper, &mut frame_allocator).expect("Heap initialization failed.");
 
     #[cfg(test)]
     test_main();

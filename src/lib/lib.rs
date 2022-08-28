@@ -4,20 +4,26 @@
 #![test_runner(crate::test_runner)]
 #![reexport_test_harness_main = "test_main"]
 #![feature(abi_x86_interrupt)]
+#![feature(alloc_error_handler)]
 
+// Include the allocator from stdlib
+extern crate alloc;
+
+#[cfg(test)]
+use bootloader::entry_point;
+#[cfg(test)]
+use bootloader::BootInfo;
 use core::panic::PanicInfo;
 use x86_64::instructions::port::Port;
 
 pub mod descriptors;
 pub mod io;
-// pub mod gdt;
-// pub mod idt;
 pub mod macros;
+pub mod memory;
 
 pub use descriptors::*;
 pub use io::*;
-// pub mod serial;
-// pub mod vga;
+pub use memory::*;
 
 pub fn init() {
     gdt::init();
@@ -83,8 +89,10 @@ fn panic(info: &PanicInfo) -> ! {
 }
 
 #[cfg(test)]
-#[no_mangle]
-pub extern "C" fn _start() -> ! {
+entry_point!(test_kernel_main);
+
+#[cfg(test)]
+fn test_kernel_main(_boot_info: &'static BootInfo) -> ! {
     init();
     test_main();
     hlt_loop();
