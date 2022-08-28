@@ -56,7 +56,7 @@ fn large_vec() {
 
 #[test_case]
 fn many_boxes() {
-    for i in 0..allocator::HEAP_SIZE {
+    for i in 0..(100 * 1024) {
         let x = Box::new(i);
         assert_eq!(*x, i);
     }
