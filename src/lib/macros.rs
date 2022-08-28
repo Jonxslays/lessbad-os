@@ -18,8 +18,8 @@ macro_rules! print {
             "Warning: invalid print! call on line: {}, column: {}", l, c
         );
     }};
-    ($($arg:ident)*) => { $crate::vga::_print(format_args!("{}",$($arg)*)) };
-    ($($arg:tt)*) => { $crate::vga::_print(format_args!($($arg)*)) };
+    ($($arg:ident)*) => { $crate::vga::_vga_print(format_args!("{}",$($arg)*)) };
+    ($($arg:tt)*) => { $crate::vga::_vga_print(format_args!($($arg)*)) };
 }
 
 /// Print with a newline at the end.
@@ -35,7 +35,7 @@ macro_rules! print {
 #[macro_export]
 macro_rules! println {
     () => { print!("\n") };
-    ($($arg:expr)*) => { $crate::vga::_print(format_args!("{}\n",$($arg)*)) };
+    ($($arg:expr)*) => { $crate::vga::_vga_print(format_args!("{}\n",$($arg)*)) };
     ($($arg:tt)*) => { $crate::print!("{}\n", format_args!($($arg)*)) };
 }
 
@@ -95,7 +95,7 @@ macro_rules! eprintln {
 #[macro_export]
 macro_rules! serial_print {
     ($($arg:tt)*) => {
-        $crate::serial::_print(format_args!($($arg)*));
+        $crate::serial::_serial_print(format_args!($($arg)*));
     };
 }
 

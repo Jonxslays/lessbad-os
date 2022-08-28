@@ -15,7 +15,7 @@ lazy_static! {
 }
 
 #[doc(hidden)]
-pub fn _print(args: ::core::fmt::Arguments) {
+pub fn _serial_print(args: ::core::fmt::Arguments) {
     interrupts::without_interrupts(|| {
         SERIAL1
             .lock()

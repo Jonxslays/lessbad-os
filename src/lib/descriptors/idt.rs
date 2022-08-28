@@ -10,9 +10,9 @@ use x86_64::instructions::port::Port;
 use x86_64::structures::idt::InterruptDescriptorTable;
 use x86_64::structures::idt::InterruptStackFrame;
 
-use super::gdt;
-use super::print;
-use super::println;
+use crate::gdt;
+use crate::print;
+use crate::println;
 
 pub const PS2_IO_PORT: u16 = 0x60;
 pub const PIC_1_OFFSET: u8 = 32;

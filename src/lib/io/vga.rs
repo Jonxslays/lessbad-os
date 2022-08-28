@@ -19,7 +19,7 @@ lazy_static! {
 }
 
 #[doc(hidden)]
-pub fn _print(args: core::fmt::Arguments) {
+pub fn _vga_print(args: core::fmt::Arguments) {
     interrupts::without_interrupts(|| {
         WRITER.lock().write_fmt(args).unwrap();
     });

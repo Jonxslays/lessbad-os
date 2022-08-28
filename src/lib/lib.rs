@@ -8,15 +8,20 @@
 use core::panic::PanicInfo;
 use x86_64::instructions::port::Port;
 
-pub mod gdt;
-pub mod interrupts;
+pub mod descriptors;
+pub mod io;
+// pub mod gdt;
+// pub mod idt;
 pub mod macros;
-pub mod serial;
-pub mod vga;
+
+pub use descriptors::*;
+pub use io::*;
+// pub mod serial;
+// pub mod vga;
 
 pub fn init() {
     gdt::init();
-    interrupts::init();
+    idt::init();
 }
 
 pub fn hlt_loop() -> ! {
