@@ -7,12 +7,17 @@ use pc_keyboard::ScancodeSet1;
 use pic8259::ChainedPics;
 use spin::Mutex;
 use x86_64::instructions::port::Port;
+use x86_64::registers::control::Cr2;
 use x86_64::structures::idt::InterruptDescriptorTable;
 use x86_64::structures::idt::InterruptStackFrame;
+use x86_64::structures::idt::PageFaultErrorCode;
 
 use crate::gdt;
+use crate::hlt_loop;
+use crate::eprintln;
 use crate::print;
 use crate::println;
+use crate::wprintln;
 
 pub const PS2_IO_PORT: u16 = 0x60;
 pub const PIC_1_OFFSET: u8 = 32;
@@ -42,6 +47,9 @@ lazy_static! {
         // Handle keyboard presses :eyes:
         idt[InterruptIdx::Keyboard as usize]
             .set_handler_fn(keyboard_interrupt_handler);
+
+        // Handle memory page faults
+        idt.page_fault.set_handler_fn(page_fault_handler);
 
         idt
     };
@@ -105,6 +113,17 @@ extern "x86-interrupt" fn keyboard_interrupt_handler(_stack_frame: InterruptStac
     }
 
     notify_eoi(InterruptIdx::Keyboard);
+}
+
+extern "x86-interrupt" fn page_fault_handler(
+    stack_frame: InterruptStackFrame,
+    error_code: PageFaultErrorCode,
+) {
+    eprintln!("EXCEPTION: PAGE FAULT");
+    wprintln!("Accessed Address: {:?}", Cr2::read());
+    wprintln!("Error Code: {:?}", error_code);
+    println!("{:#?}", stack_frame);
+    hlt_loop();
 }
 
 #[test_case]
